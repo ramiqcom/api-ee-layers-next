@@ -1,12 +1,3 @@
-import type { LngLatBoundsLike, Map } from 'maplibre-gl';
-import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
-import { createContext } from 'react';
-
-// Types
-export type Options = Array<{ value: any; label: string }>;
-
-export type Option = { value: any; label: string };
-
 export type VisObject = {
   bands: Array<string>;
   min: Array<number>;
@@ -35,7 +26,7 @@ export type LayerId =
 
 export type ImageBody = {
   geojson?: GeoJSON.GeoJSON;
-  bounds?: LngLatBoundsLike;
+  bounds?: GeoJSON.BBox;
   date: [string, string];
   satellite: SatelliteId;
   method: MethodId;
@@ -55,30 +46,3 @@ export type MapId = {
   urlFormat: string;
   image: Object;
 }
-
-// Global context
-export type GlobalContext = {
-  map: Map;
-  setMap: Dispatch<SetStateAction<maplibregl.Map>>;
-  mapStyle: Option;
-  setMapStyle: Dispatch<SetStateAction<Option>>;
-  geojson: GeoJSON.GeoJSON;
-  setGeojson: Dispatch<SetStateAction<GeoJSON.GeoJSON>>;
-  geojsonId: string;
-  setGeojsonId: Dispatch<SetStateAction<string>>;
-  modalText: string;
-  setModalText: Dispatch<SetStateAction<string>>;
-  modalRef: MutableRefObject<any>;
-  vis: VisObject;
-  setVis: Dispatch<SetStateAction<VisObject>>;
-  imageFunction: JSON;
-  setImageFunction: Dispatch<SetStateAction<JSON>>;
-  point: GeoJSON.Geometry;
-  setPoint: Dispatch<SetStateAction<GeoJSON.Geometry>>;
-  values: Record<string, number> | string;
-  setValues: Dispatch<SetStateAction<Record<string, number> | string>>;
-  geometry: GeoJSON.Geometry;
-  setGeometry: Dispatch<SetStateAction<GeoJSON.Geometry>>;
-};
-
-export const Context = createContext<GlobalContext | null>(null);
