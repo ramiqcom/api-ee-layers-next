@@ -4,7 +4,7 @@
 
 ### Demo App to use the API
 
-[https://ee-layers-next.vercel.app/](https://ee-layers-next.vercel.app/)
+[https://api-ee-layers-next.vercel.app/](https://api-ee-layers-next.vercel.app/)
 
 ### For Developer to use run the application
 
