@@ -50,6 +50,9 @@ export default async function generateLayer(
       throw new Error('Use either bounds or geojson keys but not both');
     }
 
+    // If bounds
+    let boundsPolygon: GeoJSON;
+
     // Reprojection and dissolve
     if (geojson) {
       try {
@@ -57,13 +60,7 @@ export default async function generateLayer(
       } catch (err) {}
 
       geojson = dissolve(flatten(geojson as FeatureCollection));
-    }
 
-    // If bounds
-    let boundsPolygon: GeoJSON;
-
-    // Geometry
-    if (geojson) {
       // Generate bbox polygon
       boundsPolygon = bboxPolygon(bbox(geojson));
     } else {
