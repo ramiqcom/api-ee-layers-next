@@ -2,7 +2,10 @@
 import 'node-self';
 
 import ee from '@google/earthengine';
-import { bbox, bboxPolygon } from '@turf/turf';
+import { FeatureCollection, bbox, bboxPolygon, dissolve, flatten } from '@turf/turf';
+import epsg from 'epsg';
+import { GeoJSON } from 'geojson';
+import { toWgs84 } from 'reproject';
 import satellites from '../data/satellite.json';
 import visual from '../data/visual.json';
 import type { ImageBody, ImageResult, LayerId, MapId, VisObject } from './global';
@@ -18,7 +21,7 @@ export default async function generateLayer(
 ): Promise<{ result?: ImageResult | { message: string }; ok: boolean }> {
   try {
     // Destructure body
-    const { bounds: boundary, geojson, date, method, layer, satellite } = body;
+    let { bounds: boundary, geojson, date, method, layer, satellite } = body;
 
     if (new Date(date[0]).getTime() > new Date(date[1]).getTime()) {
       throw new Error('Start date should be before the end date');
@@ -47,17 +50,28 @@ export default async function generateLayer(
       throw new Error('Use either bounds or geojson keys but not both');
     }
 
-    // If bounds
-    let bounds: ee.Geometry;
-    if (boundary) {
-      bounds = ee.Geometry.BBox(boundary[0], boundary[1], boundary[2], boundary[3]);
-    } else {
-      // Generate bbox polygon
-      const bboxGeojson = bboxPolygon(bbox(geojson)).geometry;
+    // Reprojection and dissolve
+    if (geojson) {
+      try {
+        geojson = toWgs84(geojson, undefined, epsg);
+      } catch (err) {}
 
-      // Geometry object
-      bounds = ee.Geometry(bboxGeojson);
+      geojson = dissolve(flatten(geojson as FeatureCollection));
     }
+
+    // If bounds
+    let boundsPolygon: GeoJSON;
+
+    // Geometry
+    if (geojson) {
+      // Generate bbox polygon
+      boundsPolygon = bboxPolygon(bbox(geojson));
+    } else {
+      boundsPolygon = bboxPolygon(boundary);
+    }
+
+    // EE Geometry object
+    let bounds: ee.Geometry = ee.Geometry(boundsPolygon.geometry);
 
     // Call and filter the collection
     const col: ee.ImageCollection = ee.ImageCollection(
